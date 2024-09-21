@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:mc_donals_api/screen/home/mcmenu.dart';
+
 class LauncherScreen extends StatefulWidget {
   const LauncherScreen({super.key});
 
@@ -120,6 +122,24 @@ class _LauncherScreenState extends State<LauncherScreen>
     });
   }
 
+  // Función para redirigir a la pantalla McMenuScreen con una animación circular
+void _navigateToMenuScreen(BuildContext context) {
+  Navigator.of(context).push(
+    PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => McMenuScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return ClipPath(
+          clipper: CircleRevealClipper(
+            fraction: animation.value,
+          ),
+          child: child,
+        );
+      },
+      transitionDuration: const Duration(seconds: 1),
+    ),
+  );
+}
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -193,10 +213,10 @@ class _LauncherScreenState extends State<LauncherScreen>
                           position: _buttonSlideAnimation,
                           child: ElevatedButton(
                             onPressed: () {
-                              // Acción del botón
+                              _navigateToMenuScreen(context); // Redirige con animación
                             },
                             style: ElevatedButton.styleFrom(
-                              foregroundColor: const Color(0xFFFEC208), 
+                              foregroundColor: const Color(0xFFFEC208),
                               backgroundColor: const Color(0xFF23512f), // Color del texto amarillo
                             ),
                             child: const Text('START'),
@@ -209,5 +229,25 @@ class _LauncherScreenState extends State<LauncherScreen>
         ],
       ),
     );
+  }
+}
+
+// Clipper personalizado para crear la animación de círculo
+class CircleRevealClipper extends CustomClipper<Path> {
+  final double fraction;
+
+  CircleRevealClipper({required this.fraction});
+
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    final radius = size.width * fraction * 2;
+    path.addOval(Rect.fromCircle(center: Offset(size.width / 2, size.height / 2), radius: radius));
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CircleRevealClipper oldClipper) {
+    return fraction != oldClipper.fraction;
   }
 }
